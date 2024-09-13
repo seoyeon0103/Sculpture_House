@@ -1,4 +1,4 @@
-//이미지 url 생성
+/*//이미지 url 생성
 //AWS SDK를 불러옴. 이를 통해 AWS S3 서비스에 접근 가능
 const AWS = require('aws-sdk');
 //multer, multer-s3를 통해 url 반환
@@ -27,4 +27,4 @@ const upload = multer({
 module.exports = {
     upload,
 }
-
+*/

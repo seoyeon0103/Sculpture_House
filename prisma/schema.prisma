@@ -14,12 +14,12 @@ datasource db {
 }
 
 model Group{
-  group_id   Int @id @default(autoincrement())
+  group_id   String @id @default(uuid())
   name  String
-  Password String
+  password String
   groupImageUrl String
   groupIsPublic Boolean
-  Introuction String
+  introduction String
   groupLikeCount Int @default(0)
   groupPostCount Int @default(0)
   createdAt DateTime @default(now())
@@ -27,8 +27,8 @@ model Group{
 }
 
 model Post{
-  post_id Int @id @default(autoincrement())
-  group_id Int
+  post_id String @id @default(uuid())
+  group_id String
   nickname String
   title String
   content String
@@ -46,8 +46,8 @@ model Post{
 }
 
 model Comment{
-  comment_id Int @id @default(autoincrement())
-  post_id Int
+  comment_id String @id @default(uuid())
+  post_id String
   nickname String
   commentContent String
   createdAt DateTime @default(now())

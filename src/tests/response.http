@@ -1,5 +1,0 @@
-POST http://localhost:3000/image
-Content-Type: multipart/form-data
-{
-	"image": "C:/Users/user/Pictures/Elemental.jpg"
-}
