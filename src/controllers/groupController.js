@@ -37,7 +37,7 @@ async function register(req,res){
 //그룹 목록 조회
 async function groupList(req,res) {
     try{
-        const{page, pageSize, sortBy, keyword, isPublic} = req.body;
+        const{page, pageSize, sortBy, keyword, isPublic} = req.query;
 
         const groups = await groupService.inquire({
             page,
@@ -52,13 +52,36 @@ async function groupList(req,res) {
     }catch(error){
         res.status(500).json({
             message: "Server Error"
+        });
+    }
+};
+
+//그룹 정보 수정하기
+async function modifyGroup(req,res){
+    try{
+        const {name, password, imageUrl, isPublic, introduction} = req.body;
+
+        const group = await groupService.modify({
+            name,
+            password,
+            imageUrl,
+            isPublic,
+            introduction
+        })
+
+        return res.status(200).json(group);
+    }catch(error){
+        res.status(500).json({
+            message: "Server Error"
         })
     }
 }
 
 
+
 module.exports={
     register,
     groupList,
+    modifyGroup,
 
 }

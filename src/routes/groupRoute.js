@@ -5,6 +5,7 @@ const groupController = require('../controllers/groupController');
 
 //그룹 등록
 router.post('/groups', groupController.register);
-router.get('/groups', groupController.inquire);
+router.get('/groups', groupController.groupList);
+router.put('/groups/:groupId',groupController.modifyGroup);
 
 module.exports = router;
