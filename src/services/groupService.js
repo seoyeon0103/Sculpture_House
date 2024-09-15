@@ -97,18 +97,26 @@ async function inquire({page, pageSize, sortBy, keyword, isPublic}) {
         data: groups,
     }
 };
-//로그인 시, 비밀번호 검증
+
+//password 검증 검증
 async function verifyPassword(inputPassword, storedHash) {
     const isMatch = await bcrypt.compare(inputPassword, storedHash);
     return isMatch;
 }
 
-//그룹 정보 수정하기
-async function modify(groupId,modifingData) {
-    //id 일치하는지 보기
+//groupId 검증
+async function verifyId(groupId) {
     const groupIdExit = await prisma.group.findUnique({
         where: {id: groupId}
     })
+
+    return groupIdExit;
+}
+
+//그룹 정보 수정하기
+async function modify(groupId,modifingData) {
+    //id 일치하는지 보기
+    const groupIdExit = verifyId(groupId);
 
     if(!groupIdExit){
         throw new Error('존재하지 않습니다');
@@ -146,26 +154,22 @@ async function modify(groupId,modifingData) {
 
 //그룹 삭제하기
 async function deleted(groupId, password) {
-    const groupIdExit = await prisma.group.findUnique({
-        where: {id: groupId}
-    })
+    const groupIdExit = verifyId(groupId);
 
     if(!groupIdExit){
         throw new Error("존재하지 않습니다");
     }
     //해쉬 안씌워졌을 때,
-    if(password != groupIdExit.password){
+    /*if(password != groupIdExit.password){
         throw new Error("비밀번호가 틀렸습니다");
-    }
+    }*/
 
     //해쉬 씌워졌을 때
-    /*
-    const isPasswordCorrect = await verifyPassword(modifingData.password, groupIdExit.password);
+    const isPasswordCorrect = await verifyPassword(password, groupIdExit.password);
     if(!isPasswordCorrect){
         throw new Error('비밀번호가 틀렸습니다');
     }
-    */
-
+    
     const isDelete = await prisma.group.delete({
         where: {id: groupId}
     });
@@ -173,10 +177,22 @@ async function deleted(groupId, password) {
     return isDelete;
 }
 
+//그룹 상세 정보 조회
+async function detailInquire(groupId){
+    const groupIdExit = verifyId(groupId);
+
+    if(!groupIdExit){
+        throw new Error("존재하지 않습니다")
+    }
+
+    
+}
+
 module.exports ={
     createGroup,
     inquire,
     modify,
     deleted,
+    detailInquire,
 
 }

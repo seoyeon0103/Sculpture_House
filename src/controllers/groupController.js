@@ -138,10 +138,42 @@ async function deleteGroup(req,res) {
     }
 }
 
+//그룹 상세 정보 조회하기
+async function detailGroupList(req,res) {
+    try{
+        const {groupId} = req.params;
+
+        if(!groupId){
+            res.status(400).json({
+                message: "잘못된 요청입니다"
+            })
+        }
+
+        const detail = await groupService.detailInquire(groupId);
+
+        if(detail){
+            res.status(200).json(detail);
+        }
+
+    }catch(error){
+        if(error.message == "존재하지 않습니다"){
+            res.status(404).json({
+                message: "존재하지 않습니다"
+            })
+        }
+        
+        res.status(500).json({
+            message: "Server Error",
+            error: error.message,
+        })
+    }
+}
+
 module.exports={
     register,
     groupList,
     modifyGroup,
     deleteGroup,
+    detailGroupList,
 
 }

@@ -8,5 +8,6 @@ router.post('/groups', groupController.register);
 router.get('/groups', groupController.groupList);
 router.put('/groups/:groupId',groupController.modifyGroup);
 router.delete('/groups/:groupId',groupController.deleteGroup);
+router.get('/groups/:groupId',groupController.detailGroupList);
 
 module.exports = router;
