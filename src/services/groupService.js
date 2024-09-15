@@ -4,6 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 const prisma = require('../prismaClient');
 //const { params } = require('../routes/groupRoute');
 
+const bcrypt = require('bcryptjs');
+
 //그룹 생성하기
 async function createGroup(groupData){
     const GroupData = {
@@ -68,7 +70,18 @@ async function inquire({page, pageSize, sortBy, keyword, isPublic}) {
         where,
         orderBy: groupOrderBy,
         skip,
-        take
+        take,
+        select:{
+            id: true,
+            name: true,
+            imageUrl: true,
+            isPublic: true,
+            likeCount: true,
+            postCount: true,
+            createdAt:true,
+            introduction: true,
+            password: false,
+        }
     })
 
     const totalItems = await prisma.group.count({
@@ -84,15 +97,86 @@ async function inquire({page, pageSize, sortBy, keyword, isPublic}) {
         data: groups,
     }
 };
+//로그인 시, 비밀번호 검증
+async function verifyPassword(inputPassword, storedHash) {
+    const isMatch = await bcrypt.compare(inputPassword, storedHash);
+    return isMatch;
+}
 
 //그룹 정보 수정하기
-async function modify(modifingData) {
+async function modify(groupId,modifingData) {
+    //id 일치하는지 보기
+    const groupIdExit = await prisma.group.findUnique({
+        where: {id: groupId}
+    })
+
+    if(!groupIdExit){
+        throw new Error('존재하지 않습니다');
+    }
+
+    //password 일치하는지 보기
+    const isPasswordCorrect = await verifyPassword(modifingData.password, groupIdExit.password);
+    if(!isPasswordCorrect){
+        throw new Error('비밀번호가 틀렸습니다');
+    }
     
+    const updateGroup = await prisma.group.update({
+        where: {id: groupId},
+        data:{
+            name: modifingData.name,
+            isPublic: modifingData.isPublic,
+            introduction: modifingData.introduction,
+            imageUrl: modifingData.imageUrl,
+        },
+        select:{
+            id: true,
+            name: true,
+            imageUrl: true,
+            isPublic: true,
+            likeCount: true,
+            postCount: true,
+            createdAt:true,
+            introduction: true,
+            password: false,
+        }
+    })
+
+    return updateGroup;
+}
+
+//그룹 삭제하기
+async function deleted(groupId, password) {
+    const groupIdExit = await prisma.group.findUnique({
+        where: {id: groupId}
+    })
+
+    if(!groupIdExit){
+        throw new Error("존재하지 않습니다");
+    }
+    //해쉬 안씌워졌을 때,
+    if(password != groupIdExit.password){
+        throw new Error("비밀번호가 틀렸습니다");
+    }
+
+    //해쉬 씌워졌을 때
+    /*
+    const isPasswordCorrect = await verifyPassword(modifingData.password, groupIdExit.password);
+    if(!isPasswordCorrect){
+        throw new Error('비밀번호가 틀렸습니다');
+    }
+    */
+
+    const isDelete = await prisma.group.delete({
+        where: {id: groupId}
+    });
+
+    return isDelete;
 }
 
 module.exports ={
     createGroup,
     inquire,
     modify,
+    deleted,
 
 }
