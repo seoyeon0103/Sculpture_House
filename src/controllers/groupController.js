@@ -20,8 +20,7 @@ async function register(req,res){
         //서비스에서는 DB 그룹 생성하는 거 만들기
         const newGroup = await groupService.createGroup({
             name,
-            //password: hashedPassword,
-            password,
+            password: hashedPassword,
             imageUrl,
             isPublic,
             introduction
@@ -69,7 +68,7 @@ async function modifyGroup(req,res){
         const {name, password, imageUrl, isPublic, introduction} = req.body;
 
         if(!groupId|| !name || !password || !imageUrl || typeof isPublic !== 'boolean' || !introduction){
-            return res.status(400).json({
+            res.status(400).json({
                 message: "잘못된 요청입니다"
             })
         }
@@ -151,9 +150,7 @@ async function detailGroupList(req,res) {
 
         const detail = await groupService.detailInquire(groupId);
 
-        if(detail){
-            res.status(200).json(detail);
-        }
+        res.status(200).json(detail);
 
     }catch(error){
         if(error.message == "존재하지 않습니다"){
@@ -161,10 +158,96 @@ async function detailGroupList(req,res) {
                 message: "존재하지 않습니다"
             })
         }
-        
+
         res.status(500).json({
             message: "Server Error",
             error: error.message,
+        })
+    }
+}
+
+//그룹 조회 권한 확인하기
+async function CheckPermission(req,res) {
+    try{
+        const {groupId} = req.params;
+        const password = req.body.password;
+
+        if(!groupId || !password){
+            res.status(400).json({
+                message: "잘못된 요청입니다"
+            })
+        }
+
+        const checking = await groupService.check(groupId,password);
+
+        if(checking){ 
+            return res.status(200).json({
+                message: "비밀번호가 확인되었습니다"
+            })
+        }
+
+    }catch(error){
+        if(error.message == "비밀번호가 틀렸습니다"){
+            res.status(401).json({
+                message: "비밀번호가 틀렸습니다"
+            })
+        }
+
+        else if(error.message == "존재하지 않습니다"){
+            res.status(404).json({
+                message: "존재하지 않습니다"
+            })
+        }
+        
+        res.status(500).json({
+            message: "Server Error"
+        })
+    }
+}
+
+//그룹 공감하기
+async function empathizeLike(req,res){
+    try{
+        const { groupId } = req.params;
+
+        const isLike = await groupService.empathize(groupId);
+
+        res.status(200).json({
+            message:"그룹 공감하기 성공"
+        })
+    }catch(error){
+        if(error.message == "존재하지 않습니다"){
+            res.status(404).json({
+                message:"존재하지 않습니다"
+            })
+        }
+
+        res.status(500).json({
+            message: "Server Error",
+            error: error.message,
+        })
+    }
+}
+
+//그룹 공개 여부 확인
+async function groupIsPublic(req,res){
+    try{
+        const {groupId} = req.params;
+
+        const checking = await groupService.isPublic(groupId);
+
+        res.status(200).json(checking);
+
+    }catch(error){
+        if(error.message == "Not Founded"){
+            res.status(404).json({
+                message: "Not Founded",
+            })
+        }
+        
+        res.status(500).json({
+            message:"Server Error",
+            error: error.message,  
         })
     }
 }
@@ -175,5 +258,8 @@ module.exports={
     modifyGroup,
     deleteGroup,
     detailGroupList,
+    CheckPermission,
+    empathizeLike,
+    groupIsPublic,
 
 }

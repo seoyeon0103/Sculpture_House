@@ -116,7 +116,7 @@ async function verifyId(groupId) {
 //그룹 정보 수정하기
 async function modify(groupId,modifingData) {
     //id 일치하는지 보기
-    const groupIdExit = verifyId(groupId);
+    const groupIdExit = await verifyId(groupId);
 
     if(!groupIdExit){
         throw new Error('존재하지 않습니다');
@@ -145,7 +145,6 @@ async function modify(groupId,modifingData) {
             postCount: true,
             createdAt:true,
             introduction: true,
-            password: false,
         }
     })
 
@@ -154,7 +153,7 @@ async function modify(groupId,modifingData) {
 
 //그룹 삭제하기
 async function deleted(groupId, password) {
-    const groupIdExit = verifyId(groupId);
+    const groupIdExit = await verifyId(groupId);
 
     if(!groupIdExit){
         throw new Error("존재하지 않습니다");
@@ -179,13 +178,82 @@ async function deleted(groupId, password) {
 
 //그룹 상세 정보 조회
 async function detailInquire(groupId){
-    const groupIdExit = verifyId(groupId);
+    const groupIdExit = await verifyId(groupId);
 
     if(!groupIdExit){
         throw new Error("존재하지 않습니다")
     }
 
+    //password만 제외하고 추출하기
+    return{
+        id: groupIdExit.id,
+        name: groupIdExit.name,
+        imageUrl: groupIdExit.imageUrl,
+        isPublic: groupIdExit.isPublic,
+        likeCount: groupIdExit.likeCount,
+        postCount: groupIdExit.postCount,
+        createdAt: groupIdExit.createdAt,
+        introduction: groupIdExit.introduction,
+    }
+}
+
+//그룹 조회 권한 확인
+async function check(groupId, password) {
+    const groupIdExit = await verifyId(groupId);
     
+    if(!groupIdExit){
+        throw new Error("존재하지 않습니다");
+    }
+
+    //해쉬가 없을 경우
+    /*if(password != groupIdExit.password){
+        throw new Error("비밀번호가 틀렸습니다");
+    }*/
+    
+    const isPasswordCorrect = await verifyPassword(password, groupIdExit.password);
+    if(!isPasswordCorrect){
+        throw new Error("비밀번호가 틀렸습니다");
+    }
+
+    return true;
+}
+
+//그룹 공감하기
+async function empathize(groupId){
+    const groupIdExit = await verifyId(groupId);
+
+    if(!groupIdExit){
+        throw new Error("존재하지 않습니다");
+    }
+
+    const increaseLike = await prisma.group.update({
+        where: {id: groupId},
+        data:{
+            likeCount: {increment : 1}
+        },
+    })
+
+    console.log(increaseLike.likeCount);
+
+    return increaseLike;
+}
+
+//그룹 공개 여부 확인
+async function isPublic(groupId){
+    const groupIdExit = await verifyId(groupId);
+
+    if(!groupIdExit){
+        throw new Error("Not Founded");
+    }
+
+    const checking = await prisma.group.findUnique({
+        where: {id: groupId},
+    })
+
+    return{
+        id: checking.id,
+        isPublic: checking.isPublic,
+    }
 }
 
 module.exports ={
@@ -194,5 +262,8 @@ module.exports ={
     modify,
     deleted,
     detailInquire,
+    check,
+    empathize,
+    isPublic,
 
 }
