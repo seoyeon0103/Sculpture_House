@@ -45,5 +45,6 @@ model Comment {
   nickname  String
   content   String
   createdAt DateTime @default(now())
+  password  String? 
   Post      Post     @relation(fields: [post_id], references: [id])
 }

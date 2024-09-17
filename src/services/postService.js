@@ -57,7 +57,9 @@ async function upload(groupId, postInfo){
 async function inquire(groupId, {page, pageSize, sortBy, keyword, isPublic,}){
     const groupIdExit = await groupService.verifyId(groupId);
 
-    const where = {};
+    const where = {
+        group_id : groupId,
+    };
 
     if(keyword){
         where.name = {contains:keyword};
@@ -301,5 +303,7 @@ module.exports = {
     check,
     empathize,
     isPublic,
+    verifypostId,
+    verifypostPassword,
 
 }
