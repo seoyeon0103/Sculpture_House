@@ -33,14 +33,7 @@ async function register(postId, commentInfo) {
             }
         }
     })
-
-    const checking = await prisma.post.update({
-        where: {id: postId},
-        data:{
-            commentCount : {increment : 1}
-        }
-    })
-
+    
     return commentData;
 }
 

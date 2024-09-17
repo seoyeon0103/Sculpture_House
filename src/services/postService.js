@@ -43,13 +43,6 @@ async function upload(groupId, postInfo){
         }
     })
 
-    await prisma.group.update({
-        where: {id:groupId},
-        data:{
-            postCount : {increment : 1}
-        }
-    })
-
     return postData;
 }
 
@@ -202,19 +195,12 @@ async function deleted(postId, password){
     const ispostPasswordCorrect = await verifypostPassword(password, postIdExit.password);
 
     if(!ispostPasswordCorrect){
-        throw new Error('비밀번혹 틀렸습니다');
+        throw new Error('비밀번호가 틀렸습니다');
     }
 
     const isDelete = await prisma.post.delete({
         where:{id : postId}
     });
-
-    await prisma.group.update({
-        where: {id : isDelete.group_id},
-        data:{
-            postCount: {decrement: 1}
-        }
-    })
 
     return isDelete;
 }

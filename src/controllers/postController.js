@@ -1,5 +1,6 @@
 const postService = require('../services/postService');
 const bcrypt = require('bcryptjs');
+const prisma = require('../prismaClient');
 
 //게시글 등록
 async function uploadPost(req,res) {
@@ -31,7 +32,16 @@ async function uploadPost(req,res) {
             isPublic,
         })
 
-        res.status(200).json(isUploading);
+        if(isUploading){
+            const incresing = await prisma.group.update({
+                where:{id: groupId},
+                data:{
+                    postCount : {increment:1}
+                }
+            });
+
+            res.status(200).json(isUploading);
+        }
     }catch(error){
         if(error.message == "비밀번호가 틀렸습니다"){
             res.status(403).json({
@@ -134,9 +144,19 @@ async function deletePost(req,res) {
 
         const isDelete = await postService.deleted(postId, postPassword);
 
-        res.status(200).json({
-            message: "게시글 삭제 성공"
-        })
+        if(isDelete){
+            const decresing = await prisma.group.update({
+                where:{id : isDelete.group_id},
+                data:{
+                    postCount: {decrement:1}
+                }
+            });
+
+            
+            res.status(200).json({
+                message: "게시글 삭제 성공"
+            })
+        }
     }catch(error){
         if(error.message === '비밀번호가 틀렸습니다'){
             return res.status(403).json({

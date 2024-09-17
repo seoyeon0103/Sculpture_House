@@ -23,7 +23,16 @@ async function registerComment(req, res) {
             password:hashedPassword,
         })
 
-        res.status(200).json(isRegister);
+        if(isRegister){
+            const incresing = await prisma.post.update({
+                where:{id: postId},
+                data:{
+                    commentCount:{increment:1}
+                }
+            })
+            
+            res.status(200).json(isRegister);
+        }
 
     }catch(error){
         res.status(500).json({
