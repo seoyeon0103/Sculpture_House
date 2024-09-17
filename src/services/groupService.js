@@ -93,7 +93,7 @@ async function inquire({page, pageSize, sortBy, keyword, isPublic}) {
     return {
         currentPage: parseInt(page),
         totalPages: totalPages,
-        tatalItemCount: parseInt(pageSize),
+        totalItemCount: totalItems,
         data: groups,
     }
 };
@@ -232,9 +232,6 @@ async function empathize(groupId){
             likeCount: {increment : 1}
         },
     })
-
-    console.log(increaseLike.likeCount);
-
     return increaseLike;
 }
 
@@ -246,13 +243,9 @@ async function isPublic(groupId){
         throw new Error("Not Founded");
     }
 
-    const checking = await prisma.group.findUnique({
-        where: {id: groupId},
-    })
-
     return{
-        id: checking.id,
-        isPublic: checking.isPublic,
+        id: groupIdExit.id,
+        isPublic: groupIdExit.isPublic,
     }
 }
 
@@ -265,5 +258,7 @@ module.exports ={
     check,
     empathize,
     isPublic,
+    verifyId,
+    verifyPassword,
 
 }

@@ -29,11 +29,11 @@ model Post {
   imageUrl     String
   tags         String[]
   location     String
-  moment       DateTime
+  moment       String
   isPublic     Boolean
   likeCount    Int       @default(0)
   commentCount Int       @default(0)
-  createdAT    DateTime  @default(now())
+  createdAt    DateTime  @default(now())
   password     String?
   Comment      Comment[]
   Group        Group     @relation(fields: [group_id], references: [id])

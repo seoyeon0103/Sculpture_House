@@ -67,7 +67,7 @@ async function modifyGroup(req,res){
         const {groupId} = req.params;
         const {name, password, imageUrl, isPublic, introduction} = req.body;
 
-        if(!groupId|| !name || !password || !imageUrl || typeof isPublic !== 'boolean' || !introduction){
+        if(!groupId|| !name || !imageUrl || typeof isPublic !== 'boolean' || !introduction){
             res.status(400).json({
                 message: "잘못된 요청입니다"
             })
@@ -78,8 +78,6 @@ async function modifyGroup(req,res){
         res.status(200).json(group);
 
     }catch(error){
-        console.log(error);
-
         if(error.message == "비밀번호가 틀렸습니다"){
             res.status(403).json({
                 message: "비밀번호가 틀렸습니다"
