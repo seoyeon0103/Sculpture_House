@@ -1,30 +1,44 @@
-/*//이미지 url 생성
-//AWS SDK를 불러옴. 이를 통해 AWS S3 서비스에 접근 가능
-const AWS = require('aws-sdk');
+//이미지 url 생성
 //multer, multer-s3를 통해 url 반환
 const multer = require('multer');
-const multerS3 = require('multer-s3');
+const path = require('path');
+//uuid 불러오기 위함
+const { v4: uuidv4 } = require('uuid');
+// multer 설정
 
-//multer s3를 접근할 수 있는 객체 생성
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        const uploadPath = path.join(__dirname, '..', '/../picture');
+        cb(null, uploadPath);
+    },
+    filename: function(req,file,cb){
+        const ext = path.extname(file.originalname);
+        cb(null, Date.now().toString() + ext);
+    }
 });
 
-//데이터 형식 설정
-const upload = multer({
-    storage: multerS3({
-        s3:s3,
-        bucket: process.env.AWS_S3_BUCKET_NAME,
-        acl: 'public-read',
-        key: (req, file, cb)=> {
-            cb(null, `image/${Date.now()}_${file.originalname}`);
-        },
-    }),
-});
+const upload = multer({storage: storage}).single('image');
+
+
+//이미지 업로드 서비스 로직
+async function uploadImage(req) {
+    return new Promise((resolve, reject)=>{
+        upload(req, {}, error =>{
+            if(error){
+                reject(error);
+            }else if(!req.file){
+                reject(new Error('No file uploaded'));
+            }else{
+                console.log(req.protocol);
+                console.log(req.get('host'));
+                const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
+                resolve(imageUrl);
+            }
+        });
+    });
+};
 
 module.exports = {
-    upload,
+    uploadImage,
 }
-*/
+
