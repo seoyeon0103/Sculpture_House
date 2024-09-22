@@ -262,7 +262,6 @@ async function empathize(postId) {
         },
     })
     
-    console.log(increaseLike.likeCount);
     return increaseLike;
 }
 

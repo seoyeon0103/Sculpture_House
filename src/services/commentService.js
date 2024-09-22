@@ -71,8 +71,6 @@ async function inquire(postId, {page, pageSize}) {
 
     const totalPages = Math.ceil(totalItemCount/pageSize);
 
-    console.log(postIdExit.commentCount);
-
     return{
         currentPage: page,
         totalPages : totalPages,

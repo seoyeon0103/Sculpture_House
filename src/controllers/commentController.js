@@ -129,8 +129,6 @@ async function deleteComment(req,res) {
                     commentCount: {decrement:1}
                 }
             })
-
-            console.log(checking.commentCount);
             
             res.status(200).json({
                 message: "답글 삭제 성공"

@@ -29,8 +29,6 @@ async function uploadImage(req) {
             }else if(!req.file){
                 reject(new Error('No file uploaded'));
             }else{
-                console.log(req.protocol);
-                console.log(req.get('host'));
                 const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.filename}`;
                 resolve(imageUrl);
             }
